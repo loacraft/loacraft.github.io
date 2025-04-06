@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Калькулятор крафта орехов</title>
     <style>
-        /* Базовые стили */
+        /* Общие стили */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -34,8 +34,108 @@
             background-attachment: fixed;
             background-position: center;
         }
+
+        /* Стили для полей ввода с кастомными стрелками */
+        .input-with-arrows {
+            position: relative;
+            display: inline-block;
+        }
         
-        /* Заголовки */
+        .input-with-arrows input[type="number"] {
+            padding-right: 30px;
+            width: 160px;
+            -moz-appearance: textfield;
+        }
+        
+        .input-with-arrows input[type="number"]::-webkit-outer-spin-button,
+        .input-with-arrows input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .number-controls {
+            position: absolute;
+            right: 1px;
+            top: 1px;
+            bottom: 1px;
+            width: 24px;
+            display: flex;
+            flex-direction: column;
+            background-color: #3a3a4a;
+            border-left: 1px solid #4a4a6a;
+            border-radius: 0 4px 4px 0;
+            overflow: hidden;
+        }
+        
+        .number-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border: none;
+            color: #b8b8d0;
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.2s ease;
+        }
+        
+        .number-btn:hover {
+            background-color: #4a4a6a;
+            color: #f0a400;
+        }
+        
+        .number-btn:active {
+            background-color: #5a5a7a;
+        }
+        
+        .number-btn.up::after {
+            content: "▲";
+            font-size: 0.6em;
+        }
+        
+        .number-btn.down::after {
+            content: "▼";
+            font-size: 0.6em;
+        }
+
+        /* Адаптация для мобильных */
+        @media (max-width: 768px) {
+            .input-with-arrows {
+                width: 100%;
+            }
+            
+            .input-with-arrows input[type="number"] {
+                width: 100%;
+                padding-right: 40px;
+            }
+            
+            .number-controls {
+                width: 34px;
+            }
+            
+            .number-btn.up::after,
+            .number-btn.down::after {
+                font-size: 0.8em;
+            }
+        }
+
+        /* Остальные стили (без изменений) */
+        .multiline-label {
+            display: inline-block;
+            width: 150px;
+        }
+        
+        .label-line1, .label-line2 {
+            display: block;
+            line-height: 1.3;
+        }
+        
+        .label-line2 {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+        
         h1, h2, h3 {
             color: #f0a400;
             text-shadow: 1px 1px 2px #000;
@@ -59,7 +159,6 @@
             color: #b8b8d0;
         }
         
-        /* Контейнеры */
         .container {
             background-color: rgba(26, 26, 46, 0.9);
             border-radius: 8px;
@@ -90,7 +189,6 @@
             border-radius: 8px;
         }
         
-        /* Кнопки профессий */
         .profession-selector {
             display: flex;
             flex-wrap: wrap;
@@ -122,7 +220,6 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         
-        /* Блоки ввода для профессий */
         .profession-inputs {
             display: none;
             background-color: rgba(30, 30, 50, 0.7);
@@ -137,7 +234,6 @@
             display: block;
         }
         
-        /* Группы ввода */
         .input-group {
             margin-bottom: 15px;
             display: flex;
@@ -152,28 +248,14 @@
             margin-right: 5px;
         }
         
-        input {
+        input, select {
             padding: 10px 12px;
-            width: 160px;
             border: 1px solid #4a4a6a;
             border-radius: 4px;
             background-color: #2a2a3a;
             color: #e6e6e6;
             font-size: 14px;
             transition: all 0.3s ease;
-            min-width: 160px;
-        }
-        
-        select {
-            padding: 10px 12px;
-            width: 160px;
-            border: 1px solid #4a4a6a;
-            border-radius: 4px;
-            background-color: #2a2a3a;
-            color: #e6e6e6;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            min-width: 160px;
         }
         
         input:focus, select:focus {
@@ -185,11 +267,71 @@
         .input-hint {
             color: #b8b8d0;
             font-size: 0.9em;
-            margin-left: 10px;
             opacity: 0.8;
+            display: inline-block;
+            vertical-align: middle;
+            min-width: 180px;
+            margin-left: 15px;
+        }
+
+        .craft-count-container select {
+            width: 160px; 
+            padding: 10px 12px;
+            border: 1px solid #4a4a6a;
+            border-radius: 4px;
+            background-color: #2a2a3a;
+            color: #e6e6e6;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
         
-        /* Кнопка рассчета */
+        @media (max-width: 768px) {
+            .input-hint {
+                display: block;
+                margin-left: 0;
+                margin-top: 5px;
+                min-width: auto;
+            }
+            
+            .craft-count-container select {
+                width: 100%;
+            }
+
+            .craft-count-container .input-hint {
+                margin-left: 0;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .profession-selector {
+                flex-direction: column;
+            }
+            
+            .profession-btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+        
         .calculate-btn {
             background-color: #f0a400;
             color: #1a1a2e;
@@ -213,7 +355,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
         
-        /* Таблица результатов */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -238,7 +379,6 @@
             letter-spacing: 1px;
         }
         
-        /* Стили для лучших вариантов */
         .best-option {
             background-color: rgba(50, 80, 50, 0.7);
             position: relative;
@@ -266,7 +406,6 @@
             text-align: center;
         }
         
-        /* Блок с необходимыми ресурсами */
         .resources-needed {
             background-color: rgba(50, 50, 70, 0.8);
             padding: 20px;
@@ -295,77 +434,11 @@
             font-size: 1.1em;
         }
         
-        /* Анимации */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Адаптивность */
-        @media (max-width: 768px) {
-            .input-group {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            label {
-                width: 100%;
-                margin-bottom: 5px;
-            }
-            
-            input, select {
-                width: 100%;
-                min-width: 0;
-            }
-            
-            .input-hint {
-                margin-left: 0;
-                margin-top: 5px;
-                display: block;
-                width: 100%;
-            }
-            
-            .profession-selector {
-                flex-direction: column;
-            }
-            
-            .profession-btn {
-                width: 100%;
-                text-align: center;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            h2 {
-                font-size: 1.5rem;
-            }
-            
-            /* Улучшение отображения таблицы на мобильных */
-            table {
-                font-size: 0.85rem;
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-            
-            th, td {
-                padding: 8px 4px;
-                min-width: 100px;
-            }
-            
-            .craft-cost, .resource-value {
-                font-size: 0.9em;
-            }
-            
-            /* Улучшение для таблицы результатов */
-            .results {
-                overflow-x: auto;
-            }
-        }
-        
-        /* Сообщения об ошибках */
         .error-message {
             color: #ff6b6b;
             text-align: center;
@@ -376,16 +449,12 @@
             border-left: 4px solid #ff6b6b;
         }
         
-        /* Стили для выпадающего списка */
         .craft-count-container {
             display: flex;
             align-items: center;
             flex-wrap: wrap;
         }
         
-        .craft-count-container select {
-            margin-right: 10px;
-        }
     </style>
 </head>
 <body>
@@ -396,10 +465,16 @@
             <h2>Основные параметры</h2>
             <div class="input-group">
                 <label for="nut-price">Цена ореха:</label>
-                <input type="number" id="nut-price" placeholder="Введите цену">
+                <div class="input-with-arrows">
+                    <input type="number" id="nut-price" placeholder="Введите цену" min="0">
+                    <div class="number-controls">
+                        <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                        <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
-                <label for="craft-count">Количество орехов:</label>
+                <label for="craft-count">Количество орехов за крафт:</label>
                 <div class="craft-count-container">
                     <select id="craft-count">
                         <option value="10">10 (1 ячейка)</option>
@@ -411,11 +486,19 @@
                     <span class="input-hint">(10 за одну ячейку крафта, 100 за 1 полоску и т.д.)</span>
                 </div>
             </div>
-            <!-- ДОБАВЛЕНО: Поле для цены крафта -->
             <div class="input-group">
-                <label for="craft-cost">Цена крафта (за 10 орехов):</label>
-                <input type="number" id="craft-cost" placeholder="Введите цену" value="400" max="400" min="0">
-                <span class="input-hint">(максимум 400 золота)</span>
+                <label for="craft-cost" class="multiline-label">
+                    <span class="label-line1">Цена крафта</span>
+                    <span class="label-line2">(за 10 орехов):</span>
+                </label>
+                <div class="input-with-arrows">
+                    <input type="number" id="craft-cost" placeholder="Введите цену" value="400" max="400" min="0">
+                    <div class="number-controls">
+                        <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                        <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                    </div>
+                </div>
+                <span class="input-hint">(Максимум 400 золота)</span>
             </div>
         </div>
         
@@ -431,107 +514,234 @@
                 <button class="profession-btn" onclick="showProfession('arch')">Археология</button>
             </div>
             
+            <!-- Лесозаготовка -->
             <div id="wood-inputs" class="profession-inputs active">
                 <h3>Лесозаготовка</h3>
                 <div class="input-group">
                     <label for="wood-white">Белый ресурс:</label>
-                    <input type="number" id="wood-white" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="wood-white" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="wood-green">Зелёный ресурс:</label>
-                    <input type="number" id="wood-green" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="wood-green" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="wood-blue">Синий Т4 ресурс:</label>
-                    <input type="number" id="wood-blue" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="wood-blue" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="wood-blue-t3">Синий Т3 ресурс:</label>
-                    <input type="number" id="wood-blue-t3" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="wood-blue-t3" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
+            <!-- Остальные профессии (аналогичная структура) -->
+            <!-- Горное дело -->
             <div id="mining-inputs" class="profession-inputs">
                 <h3>Горное дело</h3>
                 <div class="input-group">
                     <label for="mining-white">Белый ресурс:</label>
-                    <input type="number" id="mining-white" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="mining-white" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="mining-green">Зелёный ресурс:</label>
-                    <input type="number" id="mining-green" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="mining-green" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="mining-blue">Синий Т4 ресурс:</label>
-                    <input type="number" id="mining-blue" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="mining-blue" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="mining-blue-t3">Синий Т3 ресурс:</label>
-                    <input type="number" id="mining-blue-t3" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="mining-blue-t3" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
+            <!-- Травничество -->
             <div id="plant-inputs" class="profession-inputs">
                 <h3>Травничество</h3>
                 <div class="input-group">
                     <label for="plant-white">Белый ресурс:</label>
-                    <input type="number" id="plant-white" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="plant-white" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="plant-green">Зелёный ресурс:</label>
-                    <input type="number" id="plant-green" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="plant-green" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="plant-blue">Синий Т4 ресурс:</label>
-                    <input type="number" id="plant-blue" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="plant-blue" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
+            <!-- Охота -->
             <div id="hunt-inputs" class="profession-inputs">
                 <h3>Охота</h3>
                 <div class="input-group">
                     <label for="hunt-white">Белый ресурс:</label>
-                    <input type="number" id="hunt-white" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="hunt-white" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="hunt-green">Зелёный ресурс:</label>
-                    <input type="number" id="hunt-green" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="hunt-green" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="hunt-blue">Синий Т4 ресурс:</label>
-                    <input type="number" id="hunt-blue" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="hunt-blue" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
+            <!-- Рыбалка -->
             <div id="fish-inputs" class="profession-inputs">
                 <h3>Рыбалка</h3>
                 <div class="input-group">
                     <label for="fish-white">Белый ресурс:</label>
-                    <input type="number" id="fish-white" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="fish-white" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="fish-green">Зелёный ресурс:</label>
-                    <input type="number" id="fish-green" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="fish-green" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="fish-blue">Синий Т4 ресурс:</label>
-                    <input type="number" id="fish-blue" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="fish-blue" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
+            <!-- Археология -->
             <div id="arch-inputs" class="profession-inputs">
                 <h3>Археология</h3>
                 <div class="input-group">
                     <label for="arch-white">Белый ресурс:</label>
-                    <input type="number" id="arch-white" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="arch-white" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="arch-green">Зелёный ресурс:</label>
-                    <input type="number" id="arch-green" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="arch-green" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="arch-blue">Синий Т4 ресурс:</label>
-                    <input type="number" id="arch-blue" placeholder="Введите цену">
+                    <div class="input-with-arrows">
+                        <input type="number" id="arch-blue" placeholder="Введите цену" min="0">
+                        <div class="number-controls">
+                            <button class="number-btn up" onclick="this.parentNode.previousElementSibling.stepUp()"></button>
+                            <button class="number-btn down" onclick="this.parentNode.previousElementSibling.stepDown()"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -570,9 +780,8 @@
             // Получаем значения из полей ввода
             const nutPrice = parseFloat(document.getElementById('nut-price').value);
             const craftCount = parseInt(document.getElementById('craft-count').value);
-            // ДОБАВЛЕНО: Получаем цену крафта (по умолчанию 400)
             let craftCost = parseFloat(document.getElementById('craft-cost').value);
-            if (isNaN(craftCost) || craftCost > 400) {
+            if (isNaN(craftCost)) {
                 craftCost = 400;
                 document.getElementById('craft-cost').value = 400;
             }
@@ -613,7 +822,7 @@
                         white: white,
                         green: green,
                         blue: blue,
-                        blueT3: !isNaN(blueT3) && blueT3 > 0 ? blueT3 : null // Добавляем Т3, если цена указана
+                        blueT3: !isNaN(blueT3) && blueT3 > 0 ? blueT3 : null
                     };
                 }
             });
@@ -633,11 +842,11 @@
                 white: 86,
                 green: 45,
                 blue: 33,
-                blueT3: 50, // Из Excel: 50 Т3 на 10 орехов
-                gold: craftCost // ДОБАВЛЕНО: Используем динамическое значение
+                blueT3: 50,
+                gold: craftCost
             };
             
-            // Коэффициенты обмена ресурсов (старые, без изменений)
+            // Коэффициенты обмена ресурсов
             const exchangeRates = {
                 whiteToGreen: 2.5,
                 whiteToBlue: 12.5,
