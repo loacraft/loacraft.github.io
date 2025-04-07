@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор продажи ресурсов - Lost Ark</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        body {
+            background: url('https://images.wallpapersden.com/image/download/lost-ark-4k_a2psa2aUmZqaraWkpJRnamtlrWZrZWU.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            transition: filter 0.3s ease;
+        }
+        
+        .container.blur {
+            filter: blur(5px);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            border: 1px solid #3a3a3a;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #f0c14b, #ffd700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .description {
+            font-size: 1rem;
+            color: #ccc;
+        }
+        
+        .calculator {
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #3a3a3a;
+        }
+        
+        .select-profession {
+            margin-bottom: 20px;
+        }
+        
+        .select-profession label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #f0c14b;
+        }
+        
+        .profession-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #3a3a3a;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f0c14b'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+        }
+        
+        .profession-select:hover {
+            border-color: #f0c14b;
+        }
+        
+        .resource-inputs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .resource-group {
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #3a3a3a;
+            transition: all 0.3s ease;
+        }
+        
+        .resource-group:hover {
+            border-color: #f0c14b;
+            box-shadow: 0 0 15px rgba(240, 193, 75, 0.2);
+        }
+        
+        .resource-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #f0c14b, #ffd700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .resource-input {
+            position: relative;
+        }
+        
+        .resource-input label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #ccc;
+        }
+        
+        .number-input-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        .number-input {
+            width: 100%;
+            padding: 8px 30px 8px 10px;
+            border-radius: 3px;
+            border: 1px solid #3a3a3a;
+            background-color: #2a2a2a;
+            color: #fff;
+            -moz-appearance: textfield;
+            font-size: 14px;
+        }
+        
+        .number-input::-webkit-inner-spin-button,
+        .number-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .number-controls {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            height: 20px;
+            width: 16px;
+        }
+        
+        .number-up, .number-down {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .number-up {
+            border-bottom: 5px solid #f0c14b;
+            margin-bottom: 3px;
+        }
+        
+        .number-down {
+            border-top: 5px solid #f0c14b;
+        }
+        
+        .number-up:hover {
+            border-bottom-color: #ffd700;
+        }
+        
+        .number-down:hover {
+            border-top-color: #ffd700;
+        }
+        
+        .calculate-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #f0c14b, #d9a83e);
+            color: #111;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .calculate-btn:hover {
+            background: linear-gradient(45deg, #ffd700, #f0c14b);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 193, 75, 0.4);
+        }
+        
+        .results {
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid #3a3a3a;
+            display: none;
+        }
+        
+        .results h2 {
+            background: linear-gradient(45deg, #f0c14b, #ffd700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+        }
+        
+        .result-item span:first-child {
+            background: linear-gradient(45deg, #f0c14b, #ffd700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .total {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        
+        .commission-note {
+            color: #ccc;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loader {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid rgba(240, 193, 75, 0.2);
+            border-top: 4px solid #f0c14b;
+            animation: spin 1s linear infinite;
+        }
+        
+        .error-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+            text-align: center;
+            display: none;
+        }
+        
+        .error-triangle {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid #ff3333;
+            margin: 0 auto 20px;
+            position: relative;
+            animation: explode 0.5s ease-out forwards;
+        }
+        
+        .error-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            text-align: center;
+        }
+        
+        .error-message {
+            color: #fff;
+            font-size: 18px;
+            margin-top: 20px;
+            opacity: 0;
+            max-width: 400px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes explode {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        @media (max-width: 768px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <div class="error-container">
+        <div class="error-triangle">
+            <div class="error-text">ERROR</div>
+        </div>
+        <div class="error-message" id="error-message"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Калькулятор продажи ресурсов</h1>
+            <p class="description">Рассчитайте выгоду от продажи ресурсов в Lost Ark</p>
+        </header>
+        
+        <div class="calculator">
+            <div class="select-profession">
+                <label for="profession">Выберите ремесло:</label>
+                <select id="profession" class="profession-select">
+                    <option value="">-- Выберите ремесло --</option>
+                    <option value="logging">Лесозаготовка</option>
+                    <option value="fishing">Рыболовство</option>
+                    <option value="archaeology">Археология</option>
+                    <option value="hunting">Охота</option>
+                    <option value="herbalism">Травничество</option>
+                    <option value="mining">Горное дело</option>
+                </select>
+            </div>
+            
+            <div class="resource-inputs">
+                <div class="resource-group">
+                    <div class="resource-title">Белый ресурс</div>
+                    <div class="input-row">
+                        <div class="resource-input">
+                            <label for="white-price">Цена за 100:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="white-price" class="number-input" placeholder="Цена" oninput="formatNumber(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('white-price', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('white-price', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="resource-input">
+                            <label for="white-amount">Количество:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="white-amount" class="number-input" placeholder="Кол-во" oninput="formatNumber(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('white-amount', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('white-amount', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resource-group">
+                    <div class="resource-title">Зелёный ресурс</div>
+                    <div class="input-row">
+                        <div class="resource-input">
+                            <label for="green-price">Цена за 100:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="green-price" class="number-input" placeholder="Цена" oninput="formatNumber(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('green-price', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('green-price', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="resource-input">
+                            <label for="green-amount">Количество:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="green-amount" class="number-input" placeholder="Кол-во" oninput="formatNumber(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('green-amount', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('green-amount', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resource-group">
+                    <div class="resource-title">Синий T3 ресурс</div>
+                    <div class="input-row">
+                        <div class="resource-input">
+                            <label for="blue-t3-price">Цена за 100:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="blue-t3-price" class="number-input" placeholder="Цена" oninput="formatNumber(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('blue-t3-price', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('blue-t3-price', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="resource-input">
+                            <label for="blue-t3-amount">Количество:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="blue-t3-amount" class="number-input" placeholder="Кол-во" oninput="formatNumber(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('blue-t3-amount', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('blue-t3-amount', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resource-group">
+                    <div class="resource-title">Синий T4 ресурс</div>
+                    <div class="input-row">
+                        <div class="resource-input">
+                            <label for="blue-t4-price">Цена за 100:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="blue-t4-price" class="number-input" placeholder="Цена" oninput="formatNumber(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('blue-t4-price', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('blue-t4-price', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="resource-input">
+                            <label for="blue-t4-amount">Количество:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="blue-t4-amount" class="number-input" placeholder="Кол-во" oninput="formatNumber(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('blue-t4-amount', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('blue-t4-amount', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="resource-group">
+                    <div class="resource-title">Дополнительно</div>
+                    <div class="input-row">
+                        <div class="resource-input">
+                            <label for="nut-price">Цена за орех:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="nut-price" class="number-input" placeholder="Цена за 1" oninput="formatNumber(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('nut-price', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('nut-price', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="resource-input">
+                            <label for="craft-price">Цена за крафт:</label>
+                            <div class="number-input-container">
+                                <input type="text" id="craft-price" class="number-input" placeholder="Цена" oninput="formatDecimal(this)">
+                                <div class="number-controls">
+                                    <div class="number-up" onclick="changeNumber('craft-price', 1)"></div>
+                                    <div class="number-down" onclick="changeNumber('craft-price', -1)"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="calculate" class="calculate-btn">Рассчитать</button>
+        </div>
+        
+        <div id="results" class="results">
+            <h2>Вариант 1: Продажа ресурсов по отдельности</h2>
+            <div id="result-items"></div>
+            <div class="result-item total">
+                <span>Итого:</span>
+                <span id="total">0 золота</span>
+            </div>
+            <div class="commission-note">
+                * Все суммы указаны с учетом 5% комиссии аукциона
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Функция для изменения значения при клике на стрелки
+        function changeNumber(inputId, change) {
+            const input = document.getElementById(inputId);
+            let value = parseFloat(input.value.replace(/\s+/g, '')) || 0;
+            value += change;
+            if (value < 0) value = 0;
+            
+            if (inputId === 'craft-price') {
+                input.value = value.toFixed(2);
+            } else {
+                input.value = formatNumberValue(value);
+            }
+        }
+
+        // Форматирование чисел с разделителями
+        function formatNumber(input) {
+            // Удаляем все нецифровые символы, кроме минуса
+            let value = input.value.replace(/[^\d]/g, '');
+            
+            // Форматируем число с пробелами
+            input.value = formatNumberValue(value);
+        }
+
+        function formatNumberValue(value) {
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        // Форматирование десятичных чисел (для цены крафта)
+        function formatDecimal(input) {
+            // Заменяем запятую на точку
+            let value = input.value.replace(/,/g, '.');
+            
+            // Удаляем все, кроме цифр и точки
+            value = value.replace(/[^\d.]/g, '');
+            
+            // Удаляем лишние точки
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+            
+            input.value = value;
+        }
+
+        // Парсинг числа из форматированной строки
+        function parseFormattedNumber(str) {
+            return parseFloat(str.replace(/\s+/g, '')) || 0;
+        }
+
+        // Функция для отображения ошибки
+        function showError(message) {
+            const errorContainer = document.querySelector('.error-container');
+            const errorMessage = document.getElementById('error-message');
+            
+            errorMessage.textContent = message;
+            errorContainer.style.display = 'block';
+            
+            // Анимация появления сообщения
+            setTimeout(() => {
+                errorMessage.style.animation = 'typewriter 1s steps(40, end) forwards';
+                errorMessage.style.opacity = 1;
+            }, 500);
+            
+            // Скрываем ошибку через 5 секунд
+            setTimeout(() => {
+                errorMessage.style.animation = '';
+                errorMessage.style.opacity = 0;
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const calculateBtn = document.getElementById('calculate');
+            const resultsDiv = document.getElementById('results');
+            const resultItemsDiv = document.getElementById('result-items');
+            const totalSpan = document.getElementById('total');
+            const container = document.querySelector('.container');
+            const loadingOverlay = document.querySelector('.loading-overlay');
+            
+            calculateBtn.addEventListener('click', function() {
+                // Скрываем результаты (на случай если они были показаны ранее)
+                resultsDiv.style.display = 'none';
+                
+                // Проверка на ошибки
+                const profession = document.getElementById('profession').value;
+                let hasError = false;
+                let errorMessage = '';
+                
+                // 1. Проверка профессии
+                if (!profession) {
+                    hasError = true;
+                    errorMessage = 'Не выбрано ремесло!';
+                }
+                
+                // 2. Проверка введенных цен
+                const whitePrice = document.getElementById('white-price').value;
+                const whiteAmount = document.getElementById('white-amount').value;
+                const greenPrice = document.getElementById('green-price').value;
+                const greenAmount = document.getElementById('green-amount').value;
+                const blueT3Price = document.getElementById('blue-t3-price').value;
+                const blueT3Amount = document.getElementById('blue-t3-amount').value;
+                const blueT4Price = document.getElementById('blue-t4-price').value;
+                const blueT4Amount = document.getElementById('blue-t4-amount').value;
+                
+                if ((whiteAmount && !whitePrice) || 
+                    (greenAmount && !greenPrice) || 
+                    (blueT3Amount && !blueT3Price) || 
+                    (blueT4Amount && !blueT4Price)) {
+                    hasError = true;
+                    errorMessage = 'Введите цены для всех ресурсов, у которых указано количество!';
+                }
+                
+                // 3. Проверка что вообще что-то введено
+                if (!whitePrice && !whiteAmount && 
+                    !greenPrice && !greenAmount && 
+                    !blueT3Price && !blueT3Amount && 
+                    !blueT4Price && !blueT4Amount) {
+                    hasError = true;
+                    errorMessage = 'Лентяй! Введите хоть что-нибудь!';
+                }
+                
+                // Если есть ошибка - показываем ее
+                if (hasError) {
+                    container.classList.add('blur');
+                    loadingOverlay.style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                        showError(errorMessage);
+                        container.classList.remove('blur');
+                    }, 1000);
+                    return;
+                }
+                
+                // Активируем эффект загрузки
+                container.classList.add('blur');
+                loadingOverlay.style.display = 'flex';
+                
+                // Симулируем загрузку
+                setTimeout(() => {
+                    // Получаем все значения из полей ввода
+                    const whitePriceVal = parseFormattedNumber(whitePrice);
+                    const whiteAmountVal = parseFormattedNumber(whiteAmount);
+                    const greenPriceVal = parseFormattedNumber(greenPrice);
+                    const greenAmountVal = parseFormattedNumber(greenAmount);
+                    const blueT3PriceVal = parseFormattedNumber(blueT3Price);
+                    const blueT3AmountVal = parseFormattedNumber(blueT3Amount);
+                    const blueT4PriceVal = parseFormattedNumber(blueT4Price);
+                    const blueT4AmountVal = parseFormattedNumber(blueT4Amount);
+                    const nutPriceVal = parseFormattedNumber(document.getElementById('nut-price').value);
+                    const craftPriceVal = parseFloat(document.getElementById('craft-price').value) || 0;
+                    
+                    // Рассчитываем количество пакетов по 100
+                    const whitePackages = Math.floor(whiteAmountVal / 100);
+                    const greenPackages = Math.floor(greenAmountVal / 100);
+                    const blueT3Packages = Math.floor(blueT3AmountVal / 100);
+                    const blueT4Packages = Math.floor(blueT4AmountVal / 100);
+                    
+                    // Рассчитываем доход с учетом комиссии 5%
+                    const calculateWithCommission = (packages, price) => {
+                        const gross = packages * price;
+                        return gross * 0.95; // Вычитаем 5% комиссии
+                    };
+                    
+                    const whiteIncome = calculateWithCommission(whitePackages, whitePriceVal);
+                    const greenIncome = calculateWithCommission(greenPackages, greenPriceVal);
+                    const blueT3Income = calculateWithCommission(blueT3Packages, blueT3PriceVal);
+                    const blueT4Income = calculateWithCommission(blueT4Packages, blueT4PriceVal);
+                    
+                    // Суммируем общий доход
+                    const totalIncome = whiteIncome + greenIncome + blueT3Income + blueT4Income;
+                    
+                    // Формируем HTML с результатами
+                    let resultHTML = '';
+                    
+                    if (whiteIncome > 0) {
+                        resultHTML += `
+                            <div class="result-item">
+                                <span>Белый ресурс (${whitePackages} пакетов по 100):</span>
+                                <span>${whiteIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} золота</span>
+                            </div>
+                        `;
+                    }
+                    
+                    if (greenIncome > 0) {
+                        resultHTML += `
+                            <div class="result-item">
+                                <span>Зелёный ресурс (${greenPackages} пакетов по 100):</span>
+                                <span>${greenIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} золота</span>
+                            </div>
+                        `;
+                    }
+                    
+                    if (blueT3Income > 0) {
+                        resultHTML += `
+                            <div class="result-item">
+                                <span>Синий T3 ресурс (${blueT3Packages} пакетов по 100):</span>
+                                <span>${blueT3Income.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} золота</span>
+                            </div>
+                        `;
+                    }
+                    
+                    if (blueT4Income > 0) {
+                        resultHTML += `
+                            <div class="result-item">
+                                <span>Синий T4 ресурс (${blueT4Packages} пакетов по 100):</span>
+                                <span>${blueT4Income.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} золота</span>
+                            </div>
+                        `;
+                    }
+                    
+                    // Обновляем результаты
+                    resultItemsDiv.innerHTML = resultHTML;
+                    totalSpan.textContent = `${totalIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} золота`;
+                    
+                    // Показываем блок с результатами с анимацией
+                    resultsDiv.style.display = 'block';
+                    resultsDiv.classList.add('fade-in');
+                    
+                    // Выключаем анимацию загрузки
+                    container.classList.remove('blur');
+                    loadingOverlay.style.display = 'none';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
